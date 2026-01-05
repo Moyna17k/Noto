@@ -1,0 +1,89 @@
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&amp;display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    font-family: 'Poppins', sans-serif;
+}
+
+.noto-page {
+    min-height: 100vh;
+    background: radial-gradient(circle at top, #1a0026, #000);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #b94cff;
+    text-align: center;
+}
+
+.noto-logo img {
+    max-width: 220px;
+    margin-bottom: 30px;
+    filter: drop-shadow(0 0 15px #b94cff);
+}
+
+.noto-title {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px #b94cff;
+}
+
+.noto-subtitle {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-bottom: 40px;
+}
+
+.noto-links {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 260px;
+}
+
+.noto-link {
+    text-decoration: none;
+    color: #b94cff;
+    border: 2px solid #b94cff;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(185, 76, 255, 0.3);
+}
+
+.noto-link:hover {
+    background: #b94cff;
+    color: #000;
+    box-shadow: 0 0 25px #b94cff;
+}
+
+footer {
+    margin-top: 50px;
+    font-size: 0.8rem;
+    opacity: 0.5;
+}
+
+.noto-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* LOGOS DES RÉSEAUX */
+.noto-link img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: brightness(0) saturate(100%) invert(41%) sepia(97%) saturate(640%) hue-rotate(245deg);
+    transition: filter 0.3s ease;
+}
+
+/* HOVER  */
+.noto-link:hover img {
+    filter: brightness(0);
+}
