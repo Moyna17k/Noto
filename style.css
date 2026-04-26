@@ -657,7 +657,7 @@ body {
     line-height: 1;
 }
 
-/* ─── FOOTER (commun) ─────────────────────────────────── */
+/* ─── FOOTER ─────────────────────────────────── */
 footer {
     position: relative;
     z-index: 1;
@@ -687,7 +687,7 @@ footer {
     .noto-links  { max-width: 100%; }
 
     .noto-nav-btn {
-        font-size: 0;        /* Cache le label, garde l'icône */
+        font-size: 0;
         padding: 8px 12px;
     }
     .noto-nav-btn svg { width: 18px; height: 18px; }
