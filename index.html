@@ -8,9 +8,30 @@
 </head>
 <body>
 
-<div class="noto-page">
+<!-- ─── HEADER NAV ─────────────────────────────────────── -->
+<header class="noto-header">
+    <div class="noto-header-inner">
+        <div class="noto-header-brand">NOTO</div>
+        <nav class="noto-nav">
+            <button class="noto-nav-btn active" data-page="reseaux">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Réseaux
+            </button>
+            <button class="noto-nav-btn" data-page="vod">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                VOD
+            </button>
+            <button class="noto-nav-btn" data-page="lore">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Lore
+            </button>
+        </nav>
+    </div>
+</header>
 
-    <!-- LOGO -->
+<!-- ─── PAGE : RÉSEAUX ─────────────────────────────────── -->
+<div class="noto-page page-reseaux active" id="page-reseaux">
+
     <div class="noto-logo">
         <img src="media/logo_noto.png" alt="Noto Logo">
     </div>
@@ -18,7 +39,6 @@
     <div class="noto-title">NOTO</div>
     <div class="noto-subtitle">GTA V • Faille • Flashback WL</div>
 
-    <!-- RESEAUX -->
     <div class="noto-links">
 
         <a class="noto-link" href="https://www.twitch.tv/noto_off" target="_blank" rel="noopener noreferrer">
@@ -34,6 +54,11 @@
         <a class="noto-link" href="https://www.youtube.com/@Noto_Off/videos" target="_blank" rel="noopener noreferrer">
             <img src="https://cdn.simpleicons.org/youtube" alt="">
             YouTube
+        </a>
+
+        <a class="noto-link" href="https://www.youtube.com/@NotoRediff" target="_blank" rel="noopener noreferrer">
+            <img src="https://cdn.simpleicons.org/youtube" alt="">
+            YouTube - VOD
         </a>
 
         <a class="noto-link" href="https://www.instagram.com/noto_off/" target="_blank" rel="noopener noreferrer">
@@ -53,12 +78,186 @@
 
     </div>
 
-    <!-- FOOTER -->
-    <footer>
-        © Noto • Tous droits réservés
-    </footer>
-
+    <footer>© Noto • Tous droits réservés</footer>
 </div>
+
+<!-- ─── PAGE : VOD ─────────────────────────────────────── -->
+<div class="noto-page page-vod" id="page-vod">
+
+    <div class="vod-header">
+        <div class="vod-header-label">Dernières vidéos</div>
+        <h2 class="vod-title">VOD <span class="vod-title-accent">& Clips</span></h2>
+        <p class="vod-desc">Retrouve ici les dernières aventures de Léon Russel sur Flashback WL.</p>
+    </div>
+
+    <div class="vod-grid">
+
+        <!-- ══ CARTE VOD — dupliquer ce bloc pour ajouter des vidéos ══
+             Remplacer VIDEO_ID par l'identifiant YouTube (la partie après ?v=)
+             Remplacer LE TITRE et LA DATE selon la vidéo
+        -->
+
+        <a class="vod-card" href="https://www.youtube.com/watch?v=6ii5p97BLUo" target="_blank" rel="noopener noreferrer">
+            <div class="vod-thumb">
+                <img src="https://i.ytimg.com/vi/6ii5p97BLUo/hqdefault.jpg" alt="Vidéo 1">
+                <div class="vod-play">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+                <div class="vod-badge">Nouveau</div>
+            </div>
+            <div class="vod-info">
+                <div class="vod-card-title">Episode 12</div>
+                <div class="vod-card-meta">À venir • Flashback WL</div>
+            </div>
+        </a>
+
+        <a class="vod-card" href="https://www.youtube.com/watch?v=Bz0T0kjxGls" target="_blank" rel="noopener noreferrer">
+            <div class="vod-thumb">
+                <img src="https://i.ytimg.com/vi/Bz0T0kjxGls/hqdefault.jpg" alt="Vidéo 2">
+                <div class="vod-play">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+            </div>
+            <div class="vod-info">
+                <div class="vod-card-title">Episode 11</div>
+                <div class="vod-card-meta">À venir • Flashback WL</div>
+            </div>
+        </a>
+
+        <a class="vod-card" href="https://www.youtube.com/watch?v=j-UMEdApsUs" target="_blank" rel="noopener noreferrer">
+            <div class="vod-thumb">
+                <img src="https://i.ytimg.com/vi/j-UMEdApsUs/hqdefault.jpg" alt="Vidéo 3">
+                <div class="vod-play">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+            </div>
+            <div class="vod-info">
+                <div class="vod-card-title">Episode 10</div>
+                <div class="vod-card-meta">À venir • Flashback WL</div>
+            </div>
+        </a>
+
+        <a class="vod-card" href="https://www.youtube.com/watch?v=4pCoWNgou2U" target="_blank" rel="noopener noreferrer">
+            <div class="vod-thumb">
+                <img src="https://i.ytimg.com/vi/4pCoWNgou2U/hqdefault.jpg" alt="Vidéo 4">
+                <div class="vod-play">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+            </div>
+            <div class="vod-info">
+                <div class="vod-card-title">Episode 9</div>
+                <div class="vod-card-meta">À venir • Flashback WL</div>
+            </div>
+        </a>
+
+    </div>
+
+    <a class="vod-all-btn" href="https://www.youtube.com/@NotoRediff" target="_blank" rel="noopener noreferrer">
+        Voir toutes les vidéos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+
+    <footer>© Noto • Tous droits réservés</footer>
+</div>
+
+<!-- ─── PAGE : LORE ─────────────────────────────────────── -->
+<div class="noto-page page-lore" id="page-lore">
+
+    <div class="lore-wrapper">
+
+        <!-- Dossier / En-tête -->
+        <div class="lore-dossier-tag">DOSSIER CONFIDENTIEL — SASP N°4471</div>
+
+        <h2 class="lore-title">
+            <span class="lore-title-sub">Alias :</span>
+            LEON
+        </h2>
+
+        <div class="lore-divider">
+            <span></span><span class="lore-divider-icon">✦</span><span></span>
+        </div>
+
+        <!-- Fiche identité -->
+        <div class="lore-id-card">
+            <div class="lore-id-row"><span class="lore-id-label">Nom complet</span><span class="lore-id-value">Léon Russel</span></div>
+            <div class="lore-id-row"><span class="lore-id-label">QUARTIER</span><span class="lore-id-value">À venir...</span></div>
+            <div class="lore-id-row"><span class="lore-id-label">Affiliation</span><span class="lore-id-value">Black Hustler</span></div>
+            <div class="lore-id-row"><span class="lore-id-label">Statut</span><span class="lore-id-value lore-status">Vivant</span></div>
+        </div>
+
+        <!-- Sections narratives -->
+        <div class="lore-sections">
+
+            <div class="lore-section">
+                <div class="lore-section-num">01</div>
+                <div class="lore-section-body">
+                    <h3 class="lore-section-title">Origines</h3>
+                    <p class="lore-section-text">
+                        Leon Russell est le chef des Black Hustler. Avec sa sœur Inaya, son oncle Romelo et son cousin Marlo, 
+                        il veut bâtir une communauté afro-américaine forte. Ancien homme dangereux à Los Santos, Romelo l’envoie 
+                        à North Yankton pour le remettre dans le droit chemin. Mais les flics ne veulent pas d’eux là-bas. Après un dérapage, 
+                        ils reviennent 6 mois plus tard, prêts à reprendre les affaires.
+                    </p>
+                </div>
+            </div>
+
+            <div class="lore-section">
+                <div class="lore-section-num">02</div>
+                <div class="lore-section-body">
+                    <h3 class="lore-section-title">Ascension</h3>
+                    <p class="lore-section-text">
+                        À venir...
+                    </p>
+                </div>
+            </div>
+
+            <div class="lore-section">
+                <div class="lore-section-num">03</div>
+                <div class="lore-section-body">
+                    <h3 class="lore-section-title">Situation actuelle</h3>
+                    <p class="lore-section-text">
+                        À venir...
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Citation -->
+        <blockquote class="lore-quote">
+            "À venir..."
+        </blockquote>
+
+    </div>
+
+    <footer>© Noto • Tous droits réservés</footer>
+</div>
+
+<!-- ─── SCRIPT NAV ─────────────────────────────────────── -->
+<script>
+    const btns = document.querySelectorAll('.noto-nav-btn');
+    const pages = document.querySelectorAll('.noto-page');
+
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.page;
+
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            pages.forEach(p => {
+                p.classList.remove('active');
+                if (p.id === 'page-' + target) {
+                    p.classList.add('active');
+                    // Re-trigger animations
+                    p.classList.remove('page-enter');
+                    void p.offsetWidth;
+                    p.classList.add('page-enter');
+                }
+            });
+        });
+    });
+</script>
 
 </body>
 </html>
