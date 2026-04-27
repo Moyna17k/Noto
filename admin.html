@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Noto VOD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // ─── ⚙️ CONFIGURATION FIREBASE ───────────────────────────────
+        // Remplace ces valeurs par celles de ton projet Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAB1VobVvZJ27GEMxWo7NyklJn19HFz1kE",
+            authDomain: "noto-ec859.firebaseapp.com",
+            projectId: "noto-ec859",
+            storageBucket: "noto-ec859.firebasestorage.app",
+            messagingSenderId: "490756391672",
+            appId: "1:490756391672:web:edce56c4e4e052ae2e310d"
+        };
+        // ─────────────────────────────────────────────────────────────
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ─── MOT DE PASSE ADMIN ───────────────────────────────────────
+        const ADMIN_PASSWORD = "notovod2026"; 
+        // ─────────────────────────────────────────────────────────────
+
+        function getYouTubeId(url) {
+            const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return match ? match[1] : null;
+        }
+
+        function getThumbnail(youtubeId) {
+            return `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
+        }
+
+        async function loadVods() {
+            const listEl = document.getElementById('vod-list');
+            listEl.innerHTML = '<div class="loading">Chargement…</div>';
+            try {
+                const q = query(collection(db, "vods"), orderBy("createdAt", "desc"));
+                const snapshot = await getDocs(q);
+                listEl.innerHTML = '';
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<div class="empty">Aucune VOD pour l\'instant.</div>';
+                    return;
+                }
+                snapshot.forEach(docSnap => {
+                    const v = docSnap.data();
+                    const ytId = getYouTubeId(v.url);
+                    const card = document.createElement('div');
+                    card.className = 'admin-card';
+                    card.innerHTML = `
+                        <div class="admin-card-thumb">
+                            <img src="${ytId ? getThumbnail(ytId) : ''}" alt="">
+                        </div>
+                        <div class="admin-card-info">
+                            <div class="admin-card-title">${v.title}</div>
+                            <div class="admin-card-meta">${v.subtitle || ''}</div>
+                            ${v.badge ? `<div class="admin-card-badge">${v.badge}</div>` : ''}
+                            <div class="admin-card-url">${v.url}</div>
+                        </div>
+                        <button class="delete-btn" data-id="${docSnap.id}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            Supprimer
+                        </button>
+                    `;
+                    listEl.appendChild(card);
+                });
+
+                // Bind delete buttons
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        if (!confirm('Supprimer cette VOD ?')) return;
+                        const id = btn.dataset.id;
+                        await deleteDoc(doc(db, "vods", id));
+                        showToast('VOD supprimée !');
+                        loadVods();
+                    });
+                });
+            } catch (e) {
+                listEl.innerHTML = `<div class="error">Erreur : ${e.message}</div>`;
+            }
+        }
+
+        function showToast(msg, error = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (error ? ' error' : '');
+            setTimeout(() => t.className = 'toast', 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const loginScreen = document.getElementById('login-screen');
+            const adminPanel = document.getElementById('admin-panel');
+            const pwdInput = document.getElementById('pwd-input');
+            const pwdBtn = document.getElementById('pwd-btn');
+
+            // Login
+            pwdBtn.addEventListener('click', () => {
+                if (pwdInput.value === ADMIN_PASSWORD) {
+                    loginScreen.style.display = 'none';
+                    adminPanel.style.display = 'block';
+                    loadVods();
+                } else {
+                    document.getElementById('pwd-error').textContent = 'Mot de passe incorrect.';
+                }
+            });
+            pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') pwdBtn.click(); });
+
+            // Preview thumbnail on URL input
+            const urlInput = document.getElementById('vod-url');
+            const previewImg = document.getElementById('preview-img');
+            urlInput.addEventListener('input', () => {
+                const ytId = getYouTubeId(urlInput.value);
+                if (ytId) {
+                    previewImg.src = getThumbnail(ytId);
+                    previewImg.style.display = 'block';
+                } else {
+                    previewImg.style.display = 'none';
+                }
+            });
+
+            // Add VOD form
+            document.getElementById('add-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const url = document.getElementById('vod-url').value.trim();
+                const title = document.getElementById('vod-title').value.trim();
+                const subtitle = document.getElementById('vod-subtitle').value.trim();
+                const badge = document.getElementById('vod-badge').value.trim();
+                const ytId = getYouTubeId(url);
+
+                if (!ytId) { showToast('URL YouTube invalide !', true); return; }
+                if (!title) { showToast('Titre obligatoire !', true); return; }
+
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Ajout en cours…';
+
+                try {
+                    await addDoc(collection(db, "vods"), {
+                        url, title, subtitle, badge,
+                        youtubeId: ytId,
+                        createdAt: Date.now()
+                    });
+                    showToast('VOD ajoutée avec succès !');
+                    e.target.reset();
+                    previewImg.style.display = 'none';
+                    loadVods();
+                } catch (err) {
+                    showToast('Erreur : ' + err.message, true);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '+ Ajouter la VOD';
+                }
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                adminPanel.style.display = 'none';
+                loginScreen.style.display = 'flex';
+                pwdInput.value = '';
+            });
+        });
+    </script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(185, 76, 255, 0.25) 0%, transparent 70%),
+                #0a0010;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* ── LOGIN ── */
+        #login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(185, 76, 255, 0.25);
+            border-radius: 16px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+        }
+
+        .login-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 0.2em;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .login-sub {
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(185, 76, 255, 0.7);
+            margin-bottom: 32px;
+        }
+
+        .login-box input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            padding: 13px 16px;
+            margin-bottom: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+            text-align: center;
+            letter-spacing: 0.1em;
+        }
+
+        .login-box input:focus {
+            border-color: rgba(185, 76, 255, 0.5);
+        }
+
+        .login-box input::placeholder { color: rgba(255,255,255,0.25); }
+
+        #pwd-error {
+            color: #ff6b6b;
+            font-size: 0.78rem;
+            min-height: 18px;
+            margin-bottom: 12px;
+        }
+
+        /* ── ADMIN PANEL ── */
+        #admin-panel {
+            display: none;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        .admin-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 36px;
+        }
+
+        .admin-topbar-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 0.15em;
+        }
+
+        .admin-topbar-sub {
+            font-size: 0.72rem;
+            color: rgba(185, 76, 255, 0.7);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        /* ── FORM ── */
+        .add-section {
+            background: rgba(185, 76, 255, 0.04);
+            border: 1px solid rgba(185, 76, 255, 0.2);
+            border-radius: 14px;
+            padding: 28px 28px 24px;
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(185, 76, 255, 0.8);
+            margin-bottom: 22px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full { grid-column: 1 / -1; }
+
+        .form-group label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.45);
+        }
+
+        .form-group input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            padding: 11px 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: rgba(185, 76, 255, 0.5);
+        }
+
+        .form-group input::placeholder { color: rgba(255,255,255,0.2); }
+
+        #preview-img {
+            display: none;
+            margin-top: 8px;
+            width: 100%;
+            max-width: 200px;
+            border-radius: 8px;
+            border: 1px solid rgba(185, 76, 255, 0.2);
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 4px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(185, 76, 255, 0.18);
+            border: 1px solid rgba(185, 76, 255, 0.45);
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: rgba(185, 76, 255, 0.3);
+            border-color: rgba(185, 76, 255, 0.7);
+        }
+
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.4);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 9px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-ghost:hover {
+            border-color: rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* ── VOD LIST ── */
+        .list-section-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(185, 76, 255, 0.8);
+            margin-bottom: 16px;
+        }
+
+        #vod-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .admin-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 14px 16px;
+            transition: border-color 0.2s;
+        }
+
+        .admin-card:hover { border-color: rgba(185, 76, 255, 0.25); }
+
+        .admin-card-thumb {
+            flex-shrink: 0;
+            width: 100px;
+            height: 60px;
+            border-radius: 7px;
+            overflow: hidden;
+            background: rgba(185, 76, 255, 0.06);
+            border: 1px solid rgba(185, 76, 255, 0.15);
+        }
+
+        .admin-card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .admin-card-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .admin-card-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .admin-card-meta {
+            font-size: 0.75rem;
+            color: rgba(185, 76, 255, 0.7);
+            margin-bottom: 4px;
+        }
+
+        .admin-card-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: rgba(185, 76, 255, 0.2);
+            color: rgba(185, 76, 255, 0.9);
+            border-radius: 4px;
+            padding: 2px 7px;
+            margin-bottom: 4px;
+        }
+
+        .admin-card-url {
+            font-size: 0.68rem;
+            color: rgba(255,255,255,0.2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .delete-btn {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 80, 80, 0.07);
+            border: 1px solid rgba(255, 80, 80, 0.2);
+            color: rgba(255, 100, 100, 0.7);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .delete-btn svg { width: 13px; height: 13px; }
+
+        .delete-btn:hover {
+            background: rgba(255, 80, 80, 0.15);
+            border-color: rgba(255, 80, 80, 0.5);
+            color: #ff6b6b;
+        }
+
+        .loading, .empty {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.82rem;
+            padding: 16px;
+        }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(185, 76, 255, 0.9);
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            padding: 12px 24px;
+            border-radius: 40px;
+            opacity: 0;
+            transition: all 0.35s ease;
+            pointer-events: none;
+            z-index: 999;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.error { background: rgba(200, 50, 50, 0.9); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 560px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .admin-card-thumb { width: 70px; height: 44px; }
+            #admin-panel { padding: 20px 16px 60px; }
+            .add-section { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────── -->
+<div id="login-screen">
+    <div class="login-box">
+        <div class="login-logo">NOTO</div>
+        <div class="login-sub">Panel Admin</div>
+        <input type="password" id="pwd-input" placeholder="Mot de passe" autocomplete="current-password">
+        <div id="pwd-error"></div>
+        <button class="btn-primary" id="pwd-btn" style="width:100%; justify-content:center;">
+            Accéder au panel
+        </button>
+    </div>
+</div>
+
+<!-- ── ADMIN PANEL ───────────────────────────── -->
+<div id="admin-panel">
+
+    <div class="admin-topbar">
+        <div>
+            <div class="admin-topbar-title">Panel Admin</div>
+            <div class="admin-topbar-sub">Gestion des VOD & Clips</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <a href="index.html" class="btn-ghost">← Retour au site</a>
+            <button class="btn-ghost" id="logout-btn">Déconnexion</button>
+        </div>
+    </div>
+
+    <!-- Formulaire ajout -->
+    <div class="add-section">
+        <div class="section-title">✦ Ajouter une VOD</div>
+        <form id="add-form">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>URL YouTube *</label>
+                    <input type="url" id="vod-url" placeholder="https://www.youtube.com/watch?v=..." required>
+                    <img id="preview-img" src="" alt="Aperçu thumbnail">
+                </div>
+                <div class="form-group">
+                    <label>Titre *</label>
+                    <input type="text" id="vod-title" placeholder="Episode 13" required>
+                </div>
+                <div class="form-group">
+                    <label>Sous-titre</label>
+                    <input type="text" id="vod-subtitle" placeholder="Description courte…">
+                </div>
+                <div class="form-group">
+                    <label>Badge (optionnel)</label>
+                    <input type="text" id="vod-badge" placeholder="Nouveau">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="submit-btn">+ Ajouter la VOD</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Liste des VODs -->
+    <div class="list-section-title">VODs enregistrées</div>
+    <div id="vod-list"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+</body>
+</html>

@@ -90,61 +90,13 @@
         <p class="vod-desc">Retrouve ici les dernières aventures de Léon Russel.</p>
     </div>
 
-    <div class="vod-grid">
-
-        <a class="vod-card" href="https://www.youtube.com/watch?v=6ii5p97BLUo" target="_blank" rel="noopener noreferrer">
-            <div class="vod-thumb">
-                <img src="https://i.ytimg.com/vi/6ii5p97BLUo/hqdefault.jpg" alt="Vidéo 1">
-                <div class="vod-play">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                </div>
-                <div class="vod-badge">Nouveau</div>
-            </div>
-            <div class="vod-info">
-                <div class="vod-card-title">Episode 12</div>
-                <div class="vod-card-meta">La rue s'éveille</div>
-            </div>
-        </a>
-
-        <a class="vod-card" href="https://www.youtube.com/watch?v=Bz0T0kjxGls" target="_blank" rel="noopener noreferrer">
-            <div class="vod-thumb">
-                <img src="https://i.ytimg.com/vi/Bz0T0kjxGls/hqdefault.jpg" alt="Vidéo 2">
-                <div class="vod-play">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                </div>
-            </div>
-            <div class="vod-info">
-                <div class="vod-card-title">Episode 11</div>
-                <div class="vod-card-meta">Big Léon s'impose</div>
-            </div>
-        </a>
-
-        <a class="vod-card" href="https://www.youtube.com/watch?v=j-UMEdApsUs" target="_blank" rel="noopener noreferrer">
-            <div class="vod-thumb">
-                <img src="https://i.ytimg.com/vi/j-UMEdApsUs/hqdefault.jpg" alt="Vidéo 3">
-                <div class="vod-play">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                </div>
-            </div>
-            <div class="vod-info">
-                <div class="vod-card-title">Episode 10</div>
-                <div class="vod-card-meta">Les Black Hustler dans la rue</div>
-            </div>
-        </a>
-
-        <a class="vod-card" href="https://www.youtube.com/watch?v=4pCoWNgou2U" target="_blank" rel="noopener noreferrer">
-            <div class="vod-thumb">
-                <img src="https://i.ytimg.com/vi/4pCoWNgou2U/hqdefault.jpg" alt="Vidéo 4">
-                <div class="vod-play">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                </div>
-            </div>
-            <div class="vod-info">
-                <div class="vod-card-title">Episode 9</div>
-                <div class="vod-card-meta">Le retour du BIG</div>
-            </div>
-        </a>
-
+    <!-- Grille dynamique — remplie par Firebase -->
+    <div class="vod-grid" id="vod-grid">
+        <!-- Skeleton placeholders pendant le chargement -->
+        <div class="vod-skeleton"></div>
+        <div class="vod-skeleton"></div>
+        <div class="vod-skeleton"></div>
+        <div class="vod-skeleton"></div>
     </div>
 
     <a class="vod-all-btn" href="https://www.youtube.com/@NotoRediff" target="_blank" rel="noopener noreferrer">
@@ -160,7 +112,6 @@
 
     <div class="lore-wrapper">
 
-        <!-- Dossier / En-tête -->
         <div class="lore-dossier-tag">DOSSIER CONFIDENTIEL — SASP N°4471</div>
 
         <h2 class="lore-title">
@@ -172,15 +123,21 @@
             <span></span><span class="lore-divider-icon">✦</span><span></span>
         </div>
 
-        <!-- Fiche identité -->
         <div class="lore-id-card">
-            <div class="lore-id-row"><span class="lore-id-label">Nom complet</span><span class="lore-id-value">Léon Russel</span></div>
-            <div class="lore-id-row"><span class="lore-id-label">QUARTIER</span><span class="lore-id-value">Florence District</span></div>
-            <div class="lore-id-row"><span class="lore-id-label">Affiliation</span><span class="lore-id-value">Black Hustler</span></div>
-            <div class="lore-id-row"><span class="lore-id-label">Statut</span><span class="lore-id-value lore-status">Vivant</span></div>
+            <div class="lore-id-card-inner">
+                <div class="lore-id-photo">
+                    <img src="media/Leon.png" alt="Léon Russel">
+                    <div class="lore-id-photo-label">SUSPECT</div>
+                </div>
+                <div class="lore-id-rows">
+                    <div class="lore-id-row"><span class="lore-id-label">Nom complet</span><span class="lore-id-value">Léon Russel</span></div>
+                    <div class="lore-id-row"><span class="lore-id-label">QUARTIER</span><span class="lore-id-value">Florence District</span></div>
+                    <div class="lore-id-row"><span class="lore-id-label">Affiliation</span><span class="lore-id-value">Black Hustler</span></div>
+                    <div class="lore-id-row"><span class="lore-id-label">Statut</span><span class="lore-id-value lore-status">Vivant</span></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Sections narratives -->
         <div class="lore-sections">
 
             <div class="lore-section">
@@ -189,8 +146,8 @@
                     <h3 class="lore-section-title">Origines</h3>
                     <p class="lore-section-text">
                         Leon Russell est le chef des Black Hustler. Avec sa sœur Inaya, son oncle Romelo et son cousin Marlo, 
-                        il veut bâtir une communauté afro-américaine forte. Ancien homme dangereux à Los Santos, Romelo l’envoie 
-                        à North Yankton pour le remettre dans le droit chemin. Mais les flics ne veulent pas d’eux là-bas. Après un dérapage, 
+                        il veut bâtir une communauté afro-américaine forte. Ancien homme dangereux à Los Santos, Romelo l'envoie 
+                        à North Yankton pour le remettre dans le droit chemin. Mais les flics ne veulent pas d'eux là-bas. Après un dérapage, 
                         ils reviennent 6 mois plus tard, prêts à reprendre les affaires.
                     </p>
                 </div>
@@ -200,9 +157,7 @@
                 <div class="lore-section-num">02</div>
                 <div class="lore-section-body">
                     <h3 class="lore-section-title">À venir...</h3>
-                    <p class="lore-section-text">
-                        À venir...
-                    </p>
+                    <p class="lore-section-text">À venir...</p>
                 </div>
             </div>
 
@@ -210,15 +165,12 @@
                 <div class="lore-section-num">03</div>
                 <div class="lore-section-body">
                     <h3 class="lore-section-title">À venir...</h3>
-                    <p class="lore-section-text">
-                        À venir...
-                    </p>
+                    <p class="lore-section-text">À venir...</p>
                 </div>
             </div>
 
         </div>
 
-        <!-- Citation -->
         <blockquote class="lore-quote">
             "À venir..."
         </blockquote>
@@ -227,6 +179,102 @@
 
     <footer>© Moynaab • Tous droits réservés</footer>
 </div>
+
+<!-- ─── FIREBASE SDK ───────────────────────────────────── -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ─── ⚙️ CONFIGURATION FIREBASE ─────────────────────────────
+    // Remplace ces valeurs par celles de ton projet Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyAB1VobVvZJ27GEMxWo7NyklJn19HFz1kE",
+        authDomain: "noto-ec859.firebaseapp.com",
+        projectId: "noto-ec859",
+        storageBucket: "noto-ec859.firebasestorage.app",
+        messagingSenderId: "490756391672",
+        appId: "1:490756391672:web:edce56c4e4e052ae2e310d"
+    };
+    // ─────────────────────────────────────────────────────────────
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadVods() {
+        const grid = document.getElementById('vod-grid');
+        try {
+            const q = query(collection(db, "vods"), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+
+            grid.innerHTML = '';
+
+            if (snapshot.empty) {
+                grid.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-size:.85rem;grid-column:1/-1;text-align:center;padding:40px 0;">Aucune vidéo pour l\'instant.</p>';
+                return;
+            }
+
+            let isFirst = true;
+            snapshot.forEach(docSnap => {
+                const v = docSnap.data();
+                const card = document.createElement('a');
+                card.className = 'vod-card';
+                card.href = v.url;
+                card.target = '_blank';
+                card.rel = 'noopener noreferrer';
+
+                const thumb = `https://i.ytimg.com/vi/${v.youtubeId}/hqdefault.jpg`;
+                const badgeHtml = (v.badge || isFirst)
+                    ? `<div class="vod-badge">${v.badge || 'Nouveau'}</div>`
+                    : '';
+
+                card.innerHTML = `
+                    <div class="vod-thumb">
+                        <img src="${thumb}" alt="${v.title}">
+                        <div class="vod-play">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                        ${badgeHtml}
+                    </div>
+                    <div class="vod-info">
+                        <div class="vod-card-title">${v.title}</div>
+                        <div class="vod-card-meta">${v.subtitle || ''}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+                isFirst = false;
+            });
+        } catch (e) {
+            grid.innerHTML = `<p style="color:#ff6b6b;font-size:.82rem;grid-column:1/-1;padding:20px;">Erreur de chargement : ${e.message}</p>`;
+        }
+    }
+
+    // Charge les VODs dès que la page VOD est visible
+    let vodsLoaded = false;
+    window.addEventListener('vodPageVisible', () => {
+        if (!vodsLoaded) {
+            vodsLoaded = true;
+            loadVods();
+        }
+    });
+
+    // Expose pour la navigation
+    window.__loadVods = loadVods;
+</script>
+
+<!-- ─── STYLES SKELETON + SQUELETTE CHARGEMENT ───────────── -->
+<style>
+    .vod-skeleton {
+        border-radius: 12px;
+        background: linear-gradient(110deg, rgba(255,255,255,0.04) 40%, rgba(185,76,255,0.07) 50%, rgba(255,255,255,0.04) 60%);
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        aspect-ratio: 16/12;
+    }
+    @keyframes shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>
 
 <!-- ─── SCRIPT NAV ─────────────────────────────────────── -->
 <script>
@@ -244,12 +292,16 @@
                 p.classList.remove('active');
                 if (p.id === 'page-' + target) {
                     p.classList.add('active');
-                    // Re-trigger animations
                     p.classList.remove('page-enter');
                     void p.offsetWidth;
                     p.classList.add('page-enter');
                 }
             });
+
+            // Déclenche le chargement Firebase si on ouvre l'onglet VOD
+            if (target === 'vod') {
+                window.dispatchEvent(new Event('vodPageVisible'));
+            }
         });
     });
 </script>
