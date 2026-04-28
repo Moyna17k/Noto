@@ -113,7 +113,7 @@ body {
 }
 
 /* ─── FOND COMMUN ─────────────────────────────────────── */
-.page-reseaux, .page-vod, .page-lore {
+.page-reseaux, .page-vod, .page-lore, .page-musique {
     background:
         radial-gradient(ellipse 80% 60% at 50% -10%, rgba(185, 76, 255, 0.25) 0%, transparent 70%),
         radial-gradient(ellipse 50% 40% at 80% 80%, rgba(120, 30, 200, 0.12) 0%, transparent 60%),
@@ -125,7 +125,7 @@ body {
 }
 
 /* Grain de texture */
-.page-reseaux::before, .page-vod::before, .page-lore::before {
+.page-reseaux::before, .page-vod::before, .page-lore::before, .page-musique::before {
     content: '';
     position: fixed;
     inset: 0;
@@ -135,7 +135,7 @@ body {
 }
 
 /* Particule décorative */
-.page-reseaux::after, .page-vod::after, .page-lore::after {
+.page-reseaux::after, .page-vod::after, .page-lore::after, .page-musique::after {
     content: '';
     position: absolute;
     width: 300px;
@@ -698,6 +698,260 @@ body {
     line-height: 1;
 }
 
+/* ─── PAGE MUSIQUE ───────────────────────────────────── */
+.page-musique {
+    padding: 80px 24px 60px;
+    align-items: center;
+}
+
+.musique-header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease both;
+}
+
+/* Morceau phare */
+.musique-featured {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 40px;
+    animation: fadeUp 0.6s 0.1s ease both;
+}
+
+.musique-featured-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(185, 76, 255, 0.8);
+    margin-bottom: 12px;
+}
+
+.musique-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(185, 76, 255, 0.9);
+    box-shadow: 0 0 8px rgba(185, 76, 255, 0.6);
+    animation: pulse-dot 2s ease infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* Titre de section grille */
+.musique-section-title-row {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.5s 0.2s ease both;
+}
+
+.musique-section-title-row::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(185, 76, 255, 0.2), transparent);
+}
+
+.musique-section-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(185, 76, 255, 0.6);
+    white-space: nowrap;
+}
+
+/* Grille sons */
+.musique-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: 100%;
+    max-width: 720px;
+    animation: fadeUp 0.6s 0.25s ease both;
+}
+
+/* Carte son */
+.musique-card {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    padding: 12px;
+}
+
+.musique-card:hover {
+    border-color: rgba(185, 76, 255, 0.3);
+    background: rgba(185, 76, 255, 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(185, 76, 255, 0.1);
+}
+
+.musique-cover-link {
+    flex-shrink: 0;
+    display: block;
+    text-decoration: none;
+}
+
+.musique-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: rgba(185, 76, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.musique-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.musique-card:hover .musique-thumb img { transform: scale(1.05); }
+
+.musique-play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.musique-card:hover .musique-play-overlay { opacity: 1; }
+
+.musique-play-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #1DB954;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.musique-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(185, 76, 255, 0.85);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+/* Infos carte */
+.musique-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.musique-card-title {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.musique-card-meta {
+    font-size: 0.7rem;
+    font-weight: 300;
+    color: rgba(185, 76, 255, 0.7);
+    letter-spacing: 0.04em;
+}
+
+.musique-card-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.musique-sp-btn,
+.musique-yt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.musique-sp-btn {
+    color: #1DB954;
+    border: 1px solid rgba(29, 185, 84, 0.3);
+    background: rgba(29, 185, 84, 0.06);
+}
+
+.musique-sp-btn:hover {
+    background: rgba(29, 185, 84, 0.14);
+    border-color: rgba(29, 185, 84, 0.6);
+    color: #1DB954;
+}
+
+.musique-yt-btn {
+    color: rgba(255, 80, 80, 0.85);
+    border: 1px solid rgba(255, 80, 80, 0.25);
+    background: rgba(255, 80, 80, 0.05);
+}
+
+.musique-yt-btn:hover {
+    background: rgba(255, 80, 80, 0.12);
+    border-color: rgba(255, 80, 80, 0.5);
+    color: #ff5050;
+}
+
+/* Skeleton musique */
+.musique-skeleton {
+    border-radius: 12px;
+    background: linear-gradient(110deg, rgba(255,255,255,0.04) 40%, rgba(185,76,255,0.07) 50%, rgba(255,255,255,0.04) 60%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    height: 96px;
+}
+
 /* ─── FOOTER ─────────────────────────────────── */
 footer {
     position: relative;
@@ -741,4 +995,8 @@ footer {
     .lore-section-num { font-size: 1.5rem; width: 30px; }
     .lore-id-photo img { width: 70px; height: 88px; }
     .lore-id-card-inner { gap: 14px; }
+
+    .musique-grid { grid-template-columns: 1fr; }
+    .musique-card { padding: 10px; }
+    .musique-thumb { width: 60px; height: 60px; }
 }

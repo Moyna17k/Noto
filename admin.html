@@ -10,10 +10,17 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection, addDoc, getDocs, deleteDoc, doc, orderBy, query, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // ─── ⚙️ CONFIGURATION FIREBASE ───────────────────────────────
-        // Remplace ces valeurs par celles de ton projet Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAB1VobVvZJ27GEMxWo7NyklJn19HFz1kE",
             authDomain: "noto-ec859.firebaseapp.com",
@@ -22,17 +29,19 @@
             messagingSenderId: "490756391672",
             appId: "1:490756391672:web:edce56c4e4e052ae2e310d"
         };
-        // ─────────────────────────────────────────────────────────────
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ─── MOT DE PASSE ADMIN ───────────────────────────────────────
-        const ADMIN_PASSWORD = "notovod2026"; 
-        // ─────────────────────────────────────────────────────────────
-
+        // ── Helpers ──────────────────────────────────────────────────
         function getYouTubeId(url) {
             const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return match ? match[1] : null;
+        }
+
+        function getSpotifyId(url) {
+            const match = url.match(/spotify\.com\/(?:intl-[a-z]+\/)?track\/([a-zA-Z0-9]+)/);
             return match ? match[1] : null;
         }
 
@@ -40,6 +49,64 @@
             return `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
         }
 
+        function showToast(msg, error = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (error ? ' error' : '');
+            setTimeout(() => t.className = 'toast', 3000);
+        }
+
+        // ── Musique ──────────────────────────────────────────────────
+        async function loadMusique() {
+            const listEl = document.getElementById('musique-list');
+            listEl.innerHTML = '<div class="loading">Chargement…</div>';
+            try {
+                const q = query(collection(db, "musique"), orderBy("createdAt", "desc"));
+                const snapshot = await getDocs(q);
+                listEl.innerHTML = '';
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<div class="empty">Aucun son pour l\'instant.</div>';
+                    return;
+                }
+                snapshot.forEach(docSnap => {
+                    const m = docSnap.data();
+                    const card = document.createElement('div');
+                    card.className = 'admin-card';
+                    card.innerHTML = `
+                        <div class="admin-card-thumb" style="background:#111;display:flex;align-items:center;justify-content:center;">
+                            ${m.coverUrl
+                                ? `<img src="${m.coverUrl}" alt="" style="width:100%;height:100%;object-fit:cover;">`
+                                : `<span style="font-size:1.4rem;opacity:0.3;">♪</span>`
+                            }
+                        </div>
+                        <div class="admin-card-info">
+                            <div class="admin-card-title">${m.title}</div>
+                            <div class="admin-card-meta">${m.subtitle || ''}</div>
+                            ${m.badge ? `<div class="admin-card-badge">${m.badge}</div>` : ''}
+                            <div class="admin-card-url">spotify: ${m.spotifyId}${m.youtubeId ? ' • yt: ' + m.youtubeId : ''}</div>
+                        </div>
+                        <button class="delete-btn" data-id="${docSnap.id}" data-col="musique">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            Supprimer
+                        </button>
+                    `;
+                    listEl.appendChild(card);
+                });
+
+                document.querySelectorAll('.delete-btn[data-col="musique"]').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        if (!confirm('Supprimer ce son ?')) return;
+                        await deleteDoc(doc(db, "musique", btn.dataset.id));
+                        showToast('Son supprimé !');
+                        loadMusique();
+                    });
+                });
+            } catch (e) {
+                listEl.innerHTML = `<div class="error">Erreur : ${e.message}</div>`;
+            }
+        }
+
+        // ── VODs ─────────────────────────────────────────────────────
         async function loadVods() {
             const listEl = document.getElementById('vod-list');
             listEl.innerHTML = '<div class="loading">Chargement…</div>';
@@ -74,12 +141,10 @@
                     listEl.appendChild(card);
                 });
 
-                // Bind delete buttons
-                document.querySelectorAll('.delete-btn').forEach(btn => {
+                document.querySelectorAll('.delete-btn:not([data-col])').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         if (!confirm('Supprimer cette VOD ?')) return;
-                        const id = btn.dataset.id;
-                        await deleteDoc(doc(db, "vods", id));
+                        await deleteDoc(doc(db, "vods", btn.dataset.id));
                         showToast('VOD supprimée !');
                         loadVods();
                     });
@@ -89,33 +154,57 @@
             }
         }
 
-        function showToast(msg, error = false) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.className = 'toast show' + (error ? ' error' : '');
-            setTimeout(() => t.className = 'toast', 3000);
-        }
-
+        // ── Auth state listener ──────────────────────────────────────
         window.addEventListener('DOMContentLoaded', () => {
             const loginScreen = document.getElementById('login-screen');
-            const adminPanel = document.getElementById('admin-panel');
-            const pwdInput = document.getElementById('pwd-input');
-            const pwdBtn = document.getElementById('pwd-btn');
+            const adminPanel  = document.getElementById('admin-panel');
+            const emailInput  = document.getElementById('email-input');
+            const pwdInput    = document.getElementById('pwd-input');
+            const pwdBtn      = document.getElementById('pwd-btn');
+            const pwdError    = document.getElementById('pwd-error');
 
-            // Login
-            pwdBtn.addEventListener('click', () => {
-                if (pwdInput.value === ADMIN_PASSWORD) {
+            // Observe Firebase auth state — shows panel only when truly logged in
+            onAuthStateChanged(auth, user => {
+                if (user) {
                     loginScreen.style.display = 'none';
-                    adminPanel.style.display = 'block';
+                    adminPanel.style.display   = 'block';
+                    document.getElementById('user-email').textContent = user.email;
                     loadVods();
+                    loadMusique();
                 } else {
-                    document.getElementById('pwd-error').textContent = 'Mot de passe incorrect.';
+                    loginScreen.style.display = 'flex';
+                    adminPanel.style.display   = 'none';
                 }
             });
-            pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') pwdBtn.click(); });
+
+            // Login
+            pwdBtn.addEventListener('click', async () => {
+                pwdError.textContent = '';
+                pwdBtn.disabled = true;
+                pwdBtn.textContent = 'Connexion…';
+                try {
+                    await signInWithEmailAndPassword(auth, emailInput.value.trim(), pwdInput.value);
+                    // onAuthStateChanged will handle UI transition
+                } catch (err) {
+                    let msg = 'Identifiants incorrects.';
+                    if (err.code === 'auth/invalid-email')        msg = 'Email invalide.';
+                    if (err.code === 'auth/too-many-requests')    msg = 'Trop de tentatives. Réessaie plus tard.';
+                    pwdError.textContent = msg;
+                } finally {
+                    pwdBtn.disabled = false;
+                    pwdBtn.textContent = 'Accéder au panel';
+                }
+            });
+
+            [emailInput, pwdInput].forEach(el =>
+                el.addEventListener('keydown', e => { if (e.key === 'Enter') pwdBtn.click(); })
+            );
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
             // Preview thumbnail on URL input
-            const urlInput = document.getElementById('vod-url');
+            const urlInput   = document.getElementById('vod-url');
             const previewImg = document.getElementById('preview-img');
             urlInput.addEventListener('input', () => {
                 const ytId = getYouTubeId(urlInput.value);
@@ -130,19 +219,18 @@
             // Add VOD form
             document.getElementById('add-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const url = document.getElementById('vod-url').value.trim();
-                const title = document.getElementById('vod-title').value.trim();
+                const url      = document.getElementById('vod-url').value.trim();
+                const title    = document.getElementById('vod-title').value.trim();
                 const subtitle = document.getElementById('vod-subtitle').value.trim();
-                const badge = document.getElementById('vod-badge').value.trim();
-                const ytId = getYouTubeId(url);
+                const badge    = document.getElementById('vod-badge').value.trim();
+                const ytId     = getYouTubeId(url);
 
-                if (!ytId) { showToast('URL YouTube invalide !', true); return; }
+                if (!ytId)  { showToast('URL YouTube invalide !', true); return; }
                 if (!title) { showToast('Titre obligatoire !', true); return; }
 
                 const submitBtn = document.getElementById('submit-btn');
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Ajout en cours…';
-
                 try {
                     await addDoc(collection(db, "vods"), {
                         url, title, subtitle, badge,
@@ -161,11 +249,57 @@
                 }
             });
 
-            // Logout
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                adminPanel.style.display = 'none';
-                loginScreen.style.display = 'flex';
-                pwdInput.value = '';
+            // Preview Spotify embed
+            const spInput   = document.getElementById('musique-spotify-url');
+            const spPreview = document.getElementById('spotify-preview');
+            spInput.addEventListener('input', () => {
+                const spId = getSpotifyId(spInput.value);
+                if (spId) {
+                    spPreview.src = `https://open.spotify.com/embed/track/${spId}?utm_source=generator&theme=0`;
+                    spPreview.style.display = 'block';
+                } else {
+                    spPreview.style.display = 'none';
+                    spPreview.src = '';
+                }
+            });
+
+            // Add Musique form
+            document.getElementById('add-musique-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const spUrl    = document.getElementById('musique-spotify-url').value.trim();
+                const title    = document.getElementById('musique-title').value.trim();
+                const subtitle = document.getElementById('musique-subtitle').value.trim();
+                const badge    = document.getElementById('musique-badge').value.trim();
+                const coverUrl = document.getElementById('musique-cover').value.trim();
+                const ytUrl    = document.getElementById('musique-youtube-url').value.trim();
+                const spId     = getSpotifyId(spUrl);
+                const ytId     = ytUrl ? getYouTubeId(ytUrl) : null;
+
+                if (!spId)  { showToast('URL Spotify invalide !', true); return; }
+                if (!title) { showToast('Titre obligatoire !', true); return; }
+
+                const btn = document.getElementById('submit-musique-btn');
+                btn.disabled = true;
+                btn.textContent = 'Ajout en cours…';
+                try {
+                    await addDoc(collection(db, "musique"), {
+                        title, subtitle, badge,
+                        spotifyId: spId,
+                        coverUrl: coverUrl || '',
+                        youtubeId: ytId || '',
+                        createdAt: Date.now()
+                    });
+                    showToast('Son ajouté avec succès !');
+                    e.target.reset();
+                    spPreview.style.display = 'none';
+                    spPreview.src = '';
+                    loadMusique();
+                } catch (err) {
+                    showToast('Erreur : ' + err.message, true);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = '+ Ajouter le son';
+                }
             });
         });
     </script>
@@ -174,8 +308,7 @@
         *, *::before, *::after { box-sizing: border-box; }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Outfit', sans-serif;
             background:
                 radial-gradient(ellipse 80% 60% at 50% -10%, rgba(185, 76, 255, 0.25) 0%, transparent 70%),
@@ -232,13 +365,10 @@
             outline: none;
             transition: border-color 0.2s;
             text-align: center;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
         }
 
-        .login-box input:focus {
-            border-color: rgba(185, 76, 255, 0.5);
-        }
-
+        .login-box input:focus { border-color: rgba(185, 76, 255, 0.5); }
         .login-box input::placeholder { color: rgba(255,255,255,0.25); }
 
         #pwd-error {
@@ -277,6 +407,12 @@
             margin-top: 2px;
         }
 
+        #user-email {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: 4px;
+        }
+
         /* ── FORM ── */
         .add-section {
             background: rgba(185, 76, 255, 0.04);
@@ -302,12 +438,7 @@
             gap: 14px;
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group.full { grid-column: 1 / -1; }
 
         .form-group label {
@@ -330,10 +461,7 @@
             transition: border-color 0.2s;
         }
 
-        .form-group input:focus {
-            border-color: rgba(185, 76, 255, 0.5);
-        }
-
+        .form-group input:focus { border-color: rgba(185, 76, 255, 0.5); }
         .form-group input::placeholder { color: rgba(255,255,255,0.2); }
 
         #preview-img {
@@ -393,6 +521,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            text-decoration: none;
         }
 
         .btn-ghost:hover {
@@ -400,7 +529,7 @@
             color: rgba(255,255,255,0.7);
         }
 
-        /* ── VOD LIST ── */
+        /* ── LIST ── */
         .list-section-title {
             font-family: 'Rajdhani', sans-serif;
             font-size: 0.75rem;
@@ -411,11 +540,7 @@
             margin-bottom: 16px;
         }
 
-        #vod-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        #vod-list { display: flex; flex-direction: column; gap: 12px; }
 
         .admin-card {
             display: flex;
@@ -440,16 +565,9 @@
             border: 1px solid rgba(185, 76, 255, 0.15);
         }
 
-        .admin-card-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .admin-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-        .admin-card-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .admin-card-info { flex: 1; min-width: 0; }
 
         .admin-card-title {
             font-size: 0.88rem;
@@ -521,11 +639,7 @@
             font-size: 0.85rem;
         }
 
-        .error {
-            color: #ff6b6b;
-            font-size: 0.82rem;
-            padding: 16px;
-        }
+        .error { color: #ff6b6b; font-size: 0.82rem; padding: 16px; }
 
         /* ── TOAST ── */
         .toast {
@@ -547,11 +661,7 @@
             white-space: nowrap;
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error { background: rgba(200, 50, 50, 0.9); }
 
         /* ── RESPONSIVE ── */
@@ -570,6 +680,7 @@
     <div class="login-box">
         <div class="login-logo">NOTO</div>
         <div class="login-sub">Panel Admin</div>
+        <input type="email" id="email-input" placeholder="Email" autocomplete="username">
         <input type="password" id="pwd-input" placeholder="Mot de passe" autocomplete="current-password">
         <div id="pwd-error"></div>
         <button class="btn-primary" id="pwd-btn" style="width:100%; justify-content:center;">
@@ -584,7 +695,8 @@
     <div class="admin-topbar">
         <div>
             <div class="admin-topbar-title">Panel Admin</div>
-            <div class="admin-topbar-sub">Gestion des VOD & Clips</div>
+            <div class="admin-topbar-sub">Gestion des VOD & Musique</div>
+            <div id="user-email"></div>
         </div>
         <div style="display:flex;gap:10px;align-items:center;">
             <a href="index.html" class="btn-ghost">← Retour au site</a>
@@ -592,7 +704,7 @@
         </div>
     </div>
 
-    <!-- Formulaire ajout -->
+    <!-- Formulaire ajout VOD -->
     <div class="add-section">
         <div class="section-title">✦ Ajouter une VOD</div>
         <form id="add-form">
@@ -624,6 +736,49 @@
     <!-- Liste des VODs -->
     <div class="list-section-title">VODs enregistrées</div>
     <div id="vod-list"></div>
+
+    <div style="height:1px;background:rgba(185,76,255,0.12);margin:40px 0;"></div>
+
+    <!-- Formulaire ajout Musique -->
+    <div class="add-section">
+        <div class="section-title">♪ Ajouter un son</div>
+        <form id="add-musique-form">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>URL Spotify *</label>
+                    <input type="url" id="musique-spotify-url" placeholder="https://open.spotify.com/track/..." required>
+                    <iframe id="spotify-preview" style="display:none;margin-top:10px;border-radius:10px;border:0;" src="" width="100%" height="80" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                </div>
+                <div class="form-group">
+                    <label>Titre *</label>
+                    <input type="text" id="musique-title" placeholder="Nom du son" required>
+                </div>
+                <div class="form-group">
+                    <label>Sous-titre</label>
+                    <input type="text" id="musique-subtitle" placeholder="Noto • 2025">
+                </div>
+                <div class="form-group">
+                    <label>URL Cover (optionnel)</label>
+                    <input type="url" id="musique-cover" placeholder="https://... (image de la cover)">
+                </div>
+                <div class="form-group">
+                    <label>URL Clip YouTube (optionnel)</label>
+                    <input type="url" id="musique-youtube-url" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <div class="form-group">
+                    <label>Badge (optionnel)</label>
+                    <input type="text" id="musique-badge" placeholder="Nouveau">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="submit-musique-btn">+ Ajouter le son</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Liste des sons -->
+    <div class="list-section-title">Sons enregistrés</div>
+    <div id="musique-list"></div>
 
 </div>
 
