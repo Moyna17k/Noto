@@ -200,19 +200,24 @@ body {
 /* LIENS */
 .noto-links {
     position: relative;
+    justify-content: center;
     z-index: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    width: 100%;
-    max-width: 320px;
+    width: 300px;
+    max-width: calc(100vw - 40px);
+}
+
+.noto-link-img {
+    margin-left: 80px;
 }
 
 .noto-link {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
+    justify-content: flex-start;
+    gap: 14px;
     text-decoration: none;
     color: #fff;
     font-weight: 400;
@@ -257,12 +262,15 @@ body {
 .noto-link:nth-child(4) { animation: fadeUp 0.5s 0.54s ease both; }
 .noto-link:nth-child(5) { animation: fadeUp 0.5s 0.62s ease both; }
 .noto-link:nth-child(6) { animation: fadeUp 0.5s 0.70s ease both; }
+.noto-link:nth-child(7) { animation: fadeUp 0.5s 0.78s ease both; }
+.noto-link:nth-child(8) { animation: fadeUp 0.5s 0.86s ease both; }
 
 .noto-link img {
     width: 22px;
     height: 22px;
     object-fit: contain;
     flex-shrink: 0;
+    border-radius: 4px;
     transition: transform 0.25s ease;
 }
 
@@ -712,16 +720,236 @@ body {
     animation: fadeDown 0.6s ease both;
 }
 
-/* Morceau phare */
+/* ── HERO EXCLU ──────────────────────────────────────────── */
 .musique-featured {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 600px;
-    margin-bottom: 40px;
+    max-width: 680px;
+    margin-bottom: 52px;
     animation: fadeUp 0.6s 0.1s ease both;
 }
 
+/* Conteneur visuel hero */
+.musique-hero-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(185, 76, 255, 0.06);
+    border: 1px solid rgba(185, 76, 255, 0.3);
+    box-shadow:
+        0 0 0 1px rgba(185, 76, 255, 0.1),
+        0 20px 60px rgba(185, 76, 255, 0.2),
+        0 0 100px rgba(185, 76, 255, 0.08);
+    padding: 28px 28px 24px;
+}
+
+/* Lueur de fond animée */
+.musique-hero-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(185, 76, 255, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Ligne de scan animée */
+.musique-hero-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, rgba(185,76,255,0.9) 50%, transparent 100%);
+    animation: scanline 3s ease-in-out infinite;
+}
+
+@keyframes scanline {
+    0%   { transform: translateX(-100%); opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+
+/* Bandeau EXCLU en haut */
+.musique-exclu-banner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.musique-exclu-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(185,76,255,0.35), rgba(130,30,220,0.4));
+    border: 1px solid rgba(185, 76, 255, 0.6);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #fff;
+    box-shadow: 0 0 16px rgba(185,76,255,0.4);
+}
+
+.musique-exclu-tag .musique-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px #fff;
+}
+
+.musique-exclu-date {
+    font-size: 0.68rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+}
+
+/* Layout hero : cover + embed */
+.musique-hero-body {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.musique-hero-cover {
+    flex-shrink: 0;
+    width: 130px;
+    height: 130px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(185,76,255,0.4);
+    box-shadow:
+        0 0 20px rgba(185,76,255,0.25),
+        0 8px 24px rgba(0,0,0,0.5);
+    background: rgba(185,76,255,0.1);
+    position: relative;
+}
+
+.musique-hero-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.musique-hero-cover:hover img {
+    transform: scale(1.06);
+}
+
+/* Vinyl spin effect overlay */
+.musique-hero-cover-spin {
+    position: absolute;
+    inset: 0;
+    background: conic-gradient(from 0deg, transparent 60%, rgba(185,76,255,0.06) 100%);
+    animation: vinyl-spin 8s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes vinyl-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.musique-hero-meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 4px;
+}
+
+.musique-hero-nouveaute {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(185,76,255,0.7);
+}
+
+.musique-hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    color: #fff;
+    line-height: 1.05;
+    text-shadow: 0 0 30px rgba(185,76,255,0.4);
+}
+
+.musique-hero-subtitle {
+    font-size: 0.78rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.musique-hero-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.musique-hero-sp-btn,
+.musique-hero-yt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.musique-hero-sp-btn {
+    color: #1DB954;
+    border: 1px solid rgba(29, 185, 84, 0.4);
+    background: rgba(29, 185, 84, 0.08);
+}
+
+.musique-hero-sp-btn:hover {
+    background: rgba(29, 185, 84, 0.18);
+    border-color: rgba(29, 185, 84, 0.7);
+    box-shadow: 0 0 16px rgba(29,185,84,0.2);
+}
+
+.musique-hero-yt-btn {
+    color: rgba(255, 80, 80, 0.9);
+    border: 1px solid rgba(255, 80, 80, 0.3);
+    background: rgba(255, 80, 80, 0.06);
+}
+
+.musique-hero-yt-btn:hover {
+    background: rgba(255, 80, 80, 0.15);
+    border-color: rgba(255, 80, 80, 0.6);
+}
+
+/* Player embed */
+.musique-hero-embed {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ancien label simple (gardé pour compat) */
 .musique-featured-label {
     display: flex;
     align-items: center;
@@ -746,6 +974,14 @@ body {
 @keyframes pulse-dot {
     0%, 100% { opacity: 1; transform: scale(1); }
     50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* Responsive hero */
+@media (max-width: 540px) {
+    .musique-hero-card { padding: 20px 16px 18px; }
+    .musique-hero-body { gap: 14px; }
+    .musique-hero-cover { width: 90px; height: 90px; }
+    .musique-hero-title { font-size: 1.5rem; }
 }
 
 /* Titre de section grille */
@@ -953,17 +1189,76 @@ body {
 }
 
 /* ─── FOOTER ─────────────────────────────────── */
-footer {
+.noto-footer {
     position: relative;
     z-index: 1;
+    width: 100%;
+    max-width: 720px;
     margin-top: 48px;
-    font-size: 0.72rem;
+    padding: 0 0 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    animation: fadeDown 0.7s 0.8s ease both;
+}
+
+/* Ligne séparatrice violette */
+.noto-footer-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(185, 76, 255, 0.3), transparent);
+    margin-bottom: 4px;
+}
+
+/* Icônes réseaux */
+.noto-footer-socials {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.noto-footer-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(185, 76, 255, 0.15);
+    background: rgba(185, 76, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.noto-footer-icon:hover {
+    border-color: rgba(185, 76, 255, 0.5);
+    background: rgba(185, 76, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+.noto-footer-icon img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Copyright */
+.noto-footer-copy {
+    font-size: 0.7rem;
     font-weight: 300;
     letter-spacing: 0.1em;
     color: rgba(255, 255, 255, 0.2);
-    animation: fadeDown 0.7s 0.8s ease both;
     text-align: center;
 }
+
+/* Responsive */
+@media (max-width: 540px) {
+    .noto-footer { padding: 0 16px 28px; }
+}
+
 
 /* ─── ANIMATIONS ─────────────────────────────────────── */
 @keyframes fadeDown {
