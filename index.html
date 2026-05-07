@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="media/logo_noto.png">
-    <title>Noto</title>
+    <title>Réseaux Noto</title>
 </head>
 <body>
 
@@ -351,9 +350,9 @@
                 <div class="lore-section-body">
                     <h3 class="lore-section-title">La chute avant le renouveau</h3>
                     <p class="lore-section-text">
-                        Après plusieurs erreurs et rappels à l’ordre, Leon a poussé CJ dans ses derniers retranchements : tuer son propre frère, 
-                        Suge, pour prouver sa loyauté aux Black Hustler. Incapable de faire ce choix, CJ a préféré mettre fin à ses jours plutôt 
-                        que de trahir son sang. Craignant que Suge ne cherche à se venger après ce drame, Tonton l’a abattu immédiatement, par précaution. 
+                        Après plusieurs erreurs et rappels à l’ordre, Leon a poussé Suge dans ses derniers retranchements : tuer son propre frère, 
+                        CJ, pour prouver sa loyauté aux Black Hustler. Incapable de faire ce choix, Suge a préféré mettre fin à ses jours plutôt 
+                        que de trahir son sang. Craignant que CJ ne cherche à se venger après ce drame, Tonton l’a abattu immédiatement, par précaution. 
                         <br><br>
                         Présente au moment des faits, Inaya n’a plus supporté les décisions de son frère et a quitté la ville du jour au lendemain. Déjà détruite 
                         par la mort de Doosky, Tyla a craqué à son tour et est partie avec Inaya pour tenter de recommencer loin de tout ça. Tonton les a suivies 
@@ -409,9 +408,128 @@
 
 </div>
 
+<!-- ─── PAGE : FAILLE (cachée) ──────────────────────────── -->
+<div class="noto-page page-faille" id="page-faille">
+    <div class="faille-wrapper">
+        <div class="faille-scan"></div>
+        <div class="faille-pre">SYSTÈME COMPROMIS — FAILLE DÉTECTÉE</div>
+        <div class="faille-title" data-text="FAILLE">FAILLE</div>
+        <div class="faille-sub">Félicitations.</div>
+        <div class="faille-msg">Tu as trouvé les <span class="faille-accent">5 failles</span> cachées dans le système.<br>T'es vraiment une <span class="faille-accent">faille</span>, toi.</div>
+        <div class="faille-code">[ BREACH_CONFIRMED :: USER_IS_A_FAILLE ]</div>
+        <button class="faille-back-btn" id="faille-back-btn">↩ Retour au site</button>
+    </div>
+</div>
+
+<!-- ─── EASTER EGG HUD ──────────────────────────────────── -->
+<div class="egg-hud" id="egg-hud" style="display:none;">
+    <span id="egg-hud-text">🔍 0 / 5</span>
+</div>
+
 <!-- ─── SCRIPTS ─────────────────────────────────────────── -->
 <script defer src="main.js"></script>
 <script type="module" src="firebase.js"></script>
+<script>
+(function() {
+    var TOTAL = 5;
+    var found = new Set(JSON.parse(localStorage.getItem('noto_eggs') || '[]'));
+
+    function save() { localStorage.setItem('noto_eggs', JSON.stringify([...found])); }
+
+    function updateHud() {
+        var hud = document.getElementById('egg-hud');
+        var txt = document.getElementById('egg-hud-text');
+        if (found.size > 0) {
+            hud.style.display = 'flex';
+            txt.textContent = '🔍 ' + found.size + ' / ' + TOTAL;
+        }
+        if (found.size >= TOTAL) setTimeout(triggerFaille, 800);
+    }
+
+    function triggerFaille() {
+        document.querySelectorAll('.noto-nav-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.noto-page').forEach(function(p) { p.classList.remove('active'); });
+        document.getElementById('page-faille').classList.add('active');
+        document.getElementById('egg-hud').style.display = 'none';
+        localStorage.removeItem('noto_eggs');
+    }
+
+    function collectEgg(id, el) {
+        if (found.has(id)) return;
+        found.add(id);
+        save();
+        if (el) {
+            el.classList.add('egg-flash');
+            setTimeout(function() { el.classList.remove('egg-flash'); }, 600);
+        }
+        updateHud();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateHud();
+
+        // Egg 1 : logo NOTO header — triple clic
+        var logoClicks = 0, logoTimer;
+        var brand = document.getElementById('noto-brand-btn');
+        if (brand) {
+            brand.addEventListener('click', function() {
+                logoClicks++;
+                clearTimeout(logoTimer);
+                logoTimer = setTimeout(function() { logoClicks = 0; }, 600);
+                if (logoClicks >= 3) { logoClicks = 0; collectEgg('logo', brand); }
+            });
+        }
+
+        // Egg 2 : "SUSPECT" dans le lore
+        var suspect = document.querySelector('.lore-id-photo-label');
+        if (suspect) {
+            suspect.style.cursor = 'pointer';
+            suspect.addEventListener('click', function() { collectEgg('suspect', suspect); });
+        }
+
+        // Egg 3 : année dans le footer
+        var years = document.querySelectorAll('.noto-footer-year');
+        years.forEach(function(el) {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', function() { collectEgg('year', el); });
+        });
+
+        // Egg 4 : image vinyle dans les liens
+        var links = document.querySelectorAll('.noto-link');
+        links.forEach(function(a) {
+            if (a.href && a.href.includes('bandcamp')) {
+                var img = a.querySelector('.noto-link-img');
+                if (img) {
+                    img.style.cursor = 'pointer';
+                    img.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        collectEgg('vinyle', img);
+                    });
+                }
+            }
+        });
+
+        // Egg 5 : ✦ dans le divider lore
+        var divIcon = document.querySelector('.lore-divider-icon');
+        if (divIcon) {
+            divIcon.style.cursor = 'pointer';
+            divIcon.addEventListener('click', function() { collectEgg('divider', divIcon); });
+        }
+
+        // Retour depuis la page faille
+        var backBtn = document.getElementById('faille-back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', function() {
+                document.getElementById('page-faille').classList.remove('active');
+                document.getElementById('page-reseaux').classList.add('active');
+                var navBtn = document.querySelector('.noto-nav-btn[data-page="reseaux"]');
+                if (navBtn) navBtn.classList.add('active');
+            });
+        }
+    });
+})();
+</script>
 
 </body>
 </html>

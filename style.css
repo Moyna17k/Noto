@@ -1447,3 +1447,167 @@ body {
     .musique-card { padding: 10px; }
     .musique-thumb { width: 60px; height: 60px; }
 }
+/* ─── PAGE FAILLE ─────────────────────────────────────────── */
+.page-faille {
+    display: none;
+    position: relative;
+    min-height: 100vh;
+    background: #000;
+    overflow: hidden;
+}
+.page-faille.active { display: flex; align-items: center; justify-content: center; }
+
+.faille-wrapper {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 2rem;
+    max-width: 600px;
+}
+
+.faille-scan {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,255,80,0.03) 2px,
+        rgba(0,255,80,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+    animation: scanMove 8s linear infinite;
+}
+@keyframes scanMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+}
+
+.faille-pre {
+    font-family: 'Courier New', monospace;
+    font-size: .7rem;
+    color: #0f0;
+    letter-spacing: .2em;
+    margin-bottom: 2rem;
+    opacity: .7;
+    animation: blink 1.4s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.faille-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 20vw, 10rem);
+    color: #fff;
+    line-height: 1;
+    position: relative;
+    animation: glitch 2s infinite;
+}
+.faille-title::before,
+.faille-title::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0; right: 0;
+}
+.faille-title::before {
+    color: #0ff;
+    animation: glitch-before 2s infinite;
+    clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+}
+.faille-title::after {
+    color: #f0f;
+    animation: glitch-after 2s infinite;
+    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+}
+@keyframes glitch {
+    0%,90%,100% { transform: none; }
+    92% { transform: skew(-2deg); }
+    95% { transform: skew(2deg); }
+}
+@keyframes glitch-before {
+    0%,90%,100% { transform: none; opacity: 0; }
+    91% { transform: translateX(-4px); opacity: 1; }
+    93% { transform: translateX(4px); opacity: 1; }
+    95% { opacity: 0; }
+}
+@keyframes glitch-after {
+    0%,90%,100% { transform: none; opacity: 0; }
+    92% { transform: translateX(4px); opacity: 1; }
+    94% { transform: translateX(-4px); opacity: 1; }
+    96% { opacity: 0; }
+}
+
+.faille-sub {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: #0f0;
+    letter-spacing: .15em;
+    margin: .5rem 0 1.5rem;
+}
+
+.faille-msg {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    color: rgba(255,255,255,.7);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.faille-accent { color: #0f0; font-weight: 600; }
+
+.faille-code {
+    font-family: 'Courier New', monospace;
+    font-size: .72rem;
+    color: rgba(0,255,80,.5);
+    letter-spacing: .1em;
+    margin-bottom: 2.5rem;
+}
+
+.faille-back-btn {
+    background: transparent;
+    border: 1px solid rgba(0,255,80,.4);
+    color: rgba(0,255,80,.8);
+    font-family: 'Outfit', sans-serif;
+    font-size: .85rem;
+    letter-spacing: .1em;
+    padding: .6rem 1.6rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all .2s;
+}
+.faille-back-btn:hover {
+    background: rgba(0,255,80,.08);
+    border-color: rgba(0,255,80,.8);
+    color: #0f0;
+}
+
+/* ─── EASTER EGG HUD ──────────────────────────────────────── */
+.egg-hud {
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    background: rgba(0,0,0,.7);
+    border: 1px solid rgba(185,76,255,.4);
+    border-radius: 20px;
+    padding: .3rem .9rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: .78rem;
+    color: rgba(185,76,255,.9);
+    z-index: 9999;
+    pointer-events: none;
+    animation: hudAppear .3s ease;
+}
+@keyframes hudAppear {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ─── FLASH sur collecte ──────────────────────────────────── */
+.egg-flash {
+    animation: eggFlash .5s ease !important;
+}
+@keyframes eggFlash {
+    0%,100% { filter: none; }
+    30%      { filter: brightness(3) saturate(0); }
+    60%      { filter: brightness(1.5) hue-rotate(60deg); }
+}
