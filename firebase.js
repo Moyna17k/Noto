@@ -48,6 +48,29 @@ async function loadVods() {
                 ? `<div class="vod-badge">${v.badge || 'Nouveau'}</div>`
                 : '';
 
+            // ── Hero card (première VOD) ─────────────────────────
+            if (isFirst) {
+                const thumbLink = document.getElementById('vod-hero-thumb-link');
+                const thumbImg  = document.getElementById('vod-hero-thumb-img');
+                if (thumbLink && v.url)       thumbLink.href = v.url;
+                if (thumbImg  && v.youtubeId) thumbImg.src  = `https://i.ytimg.com/vi/${v.youtubeId}/maxresdefault.jpg`;
+
+                const heroTitle   = document.getElementById('vod-hero-title');
+                const heroSub     = document.getElementById('vod-hero-subtitle');
+                const heroActions = document.getElementById('vod-hero-actions');
+                const heroDate    = document.getElementById('vod-hero-date');
+
+                if (heroTitle) heroTitle.textContent = v.title    || '';
+                if (heroSub)   heroSub.textContent   = v.subtitle || '';
+
+                if (heroDate && v.createdAt) {
+                    const d = new Date(v.createdAt);
+                    heroDate.textContent = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                }
+
+
+            }
+
             // Utilise textContent pour le titre (évite les injections HTML)
             card.innerHTML = `
                 <div class="vod-thumb">
