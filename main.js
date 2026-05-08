@@ -61,12 +61,72 @@ document.querySelectorAll('.noto-footer-year')
         if (found.size >= TOTAL) setTimeout(triggerFaille, 800);
     }
 
+    function playBreachSound() {
+        try {
+            var ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+            function beep(freq, start, duration, vol, type) {
+                var osc  = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = type || 'square';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+                osc.frequency.exponentialRampToValueAtTime(freq * 0.3, ctx.currentTime + start + duration);
+                gain.gain.setValueAtTime(0, ctx.currentTime + start);
+                gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+                osc.start(ctx.currentTime + start);
+                osc.stop(ctx.currentTime + start + duration + 0.05);
+            }
+
+            function noise(start, duration, vol) {
+                var bufSize  = ctx.sampleRate * duration;
+                var buffer   = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+                var data     = buffer.getChannelData(0);
+                for (var i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+                var src  = ctx.createBufferSource();
+                var gain = ctx.createGain();
+                var filt = ctx.createBiquadFilter();
+                filt.type = 'bandpass';
+                filt.frequency.value = 1200;
+                filt.Q.value = 0.8;
+                src.buffer = buffer;
+                src.connect(filt);
+                filt.connect(gain);
+                gain.connect(ctx.destination);
+                gain.gain.setValueAtTime(0, ctx.currentTime + start);
+                gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+                src.start(ctx.currentTime + start);
+                src.stop(ctx.currentTime + start + duration + 0.05);
+            }
+
+            // Glitch beeps rapides
+            beep(880,  0.00, 0.06, 0.25, 'square');
+            beep(1320, 0.07, 0.05, 0.20, 'square');
+            beep(660,  0.13, 0.04, 0.22, 'square');
+            beep(1760, 0.18, 0.07, 0.18, 'sawtooth');
+            // Bruit de breach
+            noise(0.00, 0.25, 0.15);
+            noise(0.25, 0.35, 0.10);
+            // Swoosh descendant
+            beep(2200, 0.28, 0.55, 0.20, 'sawtooth');
+            // Confirmation basse
+            beep(220,  0.60, 0.40, 0.30, 'sine');
+            beep(180,  0.65, 0.35, 0.20, 'sine');
+
+            setTimeout(function () { ctx.close(); }, 1500);
+        } catch (e) { /* Pas de Web Audio API dispo */ }
+    }
+
     function triggerFaille() {
         document.querySelectorAll('.noto-nav-btn').forEach(function (b) { b.classList.remove('active'); });
         document.querySelectorAll('.noto-page').forEach(function (p) { p.classList.remove('active'); });
         document.getElementById('page-faille').classList.add('active');
         document.getElementById('egg-hud').style.display = 'none';
         localStorage.removeItem('noto_eggs');
+        playBreachSound();
     }
 
     function collectEgg(id, el) {
