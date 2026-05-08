@@ -8,6 +8,9 @@ const btns  = document.querySelectorAll('.noto-nav-btn');
 const pages = document.querySelectorAll('.noto-page');
 
 function navigateTo(target) {
+    // Remonter en haut de page
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
     // Mettre à jour les boutons nav
     btns.forEach(b => b.classList.remove('active'));
     const matchBtn = document.querySelector(`.noto-nav-btn[data-page="${target}"]`);
