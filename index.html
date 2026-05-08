@@ -254,8 +254,9 @@
         </div>
     </div>
 
-    <div class="musique-section-title-row">
-        <span class="musique-section-label">Tous les sons</span>
+    <!-- ── Section Singles ── -->
+    <div class="musique-section-title-row" id="singles-section-row" style="display:none;">
+        <span class="musique-section-label">Singles</span>
     </div>
 
     <div class="musique-grid" id="musique-grid">
@@ -264,6 +265,13 @@
         <div class="musique-skeleton"></div>
         <div class="musique-skeleton"></div>
     </div>
+
+    <!-- ── Section Albums ── -->
+    <div class="musique-section-title-row" id="albums-section-row" style="display:none;">
+        <span class="musique-section-label">Albums</span>
+    </div>
+
+    <div class="albums-grid" id="albums-grid"></div>
 
     <a class="vod-all-btn" href="https://open.spotify.com/artist/5vIdtn8KS4UBXa0GzGPShH" target="_blank" rel="noopener noreferrer">
         Écouter sur Spotify
@@ -419,6 +427,29 @@
         <div class="faille-code">[ BREACH_CONFIRMED :: USER_IS_A_FAILLE ]</div>
         <button class="faille-back-btn" id="faille-back-btn">↩ Retour au site</button>
     </div>
+</div>
+
+<!-- ─── PANEL ALBUM ─────────────────────────────────────── -->
+<div class="album-overlay" id="album-overlay" onclick="closeAlbumPanel()"></div>
+<div class="album-panel" id="album-panel">
+    <div class="album-panel-header">
+        <button class="album-panel-close" onclick="closeAlbumPanel()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="album-panel-hero">
+            <img id="album-panel-cover" src="" alt="" class="album-panel-cover-img">
+            <div class="album-panel-meta">
+                <div class="album-panel-label">Album</div>
+                <div class="album-panel-title" id="album-panel-title"></div>
+                <div class="album-panel-count" id="album-panel-count"></div>
+                <a class="musique-hero-sp-btn" id="album-panel-sp-btn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;margin-top:10px;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.65 14.4c-.2.3-.6.4-.9.2-2.5-1.53-5.65-1.87-9.35-1.02-.36.08-.72-.14-.8-.5-.08-.36.14-.72.5-.8 4.05-.93 7.52-.53 10.35 1.18.3.2.4.6.2.94zm1.24-2.76c-.25.37-.76.49-1.13.24-2.87-1.76-7.23-2.27-10.62-1.24-.44.13-.9-.11-1.04-.55-.13-.44.11-.9.55-1.04 3.87-1.17 8.67-.6 11.96 1.42.37.25.49.76.28 1.17zm.1-2.87C14.85 9.1 9.37 8.93 6.1 9.9c-.52.16-1.07-.13-1.23-.66-.16-.52.13-1.07.66-1.23 3.76-1.14 10.02-.92 13.97 1.4.47.28.63.88.35 1.35-.28.47-.88.63-1.35.35z"/></svg>
+                    Écouter l'album
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="album-panel-tracks" id="album-panel-tracks"></div>
 </div>
 
 <!-- ─── EASTER EGG HUD ──────────────────────────────────── -->

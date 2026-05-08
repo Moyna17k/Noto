@@ -349,14 +349,19 @@
             // Add Musique form
             document.getElementById('add-musique-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const spUrl    = document.getElementById('musique-spotify-url').value.trim();
-                const title    = document.getElementById('musique-title').value.trim();
-                const subtitle = document.getElementById('musique-subtitle').value.trim();
-                const badge    = document.getElementById('musique-badge').value.trim();
-                const coverUrl = document.getElementById('musique-cover').value.trim();
-                const ytUrl    = document.getElementById('musique-youtube-url').value.trim();
-                const spId     = getSpotifyId(spUrl);
-                const ytId     = ytUrl ? getYouTubeId(ytUrl) : null;
+                const spUrl          = document.getElementById('musique-spotify-url').value.trim();
+                const title          = document.getElementById('musique-title').value.trim();
+                const subtitle       = document.getElementById('musique-subtitle').value.trim();
+                const badge          = document.getElementById('musique-badge').value.trim();
+                const coverUrl       = document.getElementById('musique-cover').value.trim();
+                const ytUrl          = document.getElementById('musique-youtube-url').value.trim();
+                const albumId        = document.getElementById('musique-album-id').value.trim();
+                const albumTitle     = document.getElementById('musique-album-title').value.trim();
+                const albumCoverUrl  = document.getElementById('musique-album-cover').value.trim();
+                const spAlbumUrl     = document.getElementById('musique-album-spotify-url').value.trim();
+                const spId           = getSpotifyId(spUrl);
+                const ytId           = ytUrl ? getYouTubeId(ytUrl) : null;
+                const spAlbumId      = spAlbumUrl ? (spAlbumUrl.match(/spotify\.com\/(?:intl-[a-z]+\/)?album\/([a-zA-Z0-9]+)/)?.[1] || null) : null;
 
                 if (!spId)  { showToast('URL Spotify invalide !', true); return; }
                 if (!title) { showToast('Titre obligatoire !', true); return; }
@@ -365,13 +370,20 @@
                 btn.disabled = true;
                 btn.textContent = 'Ajout en cours…';
                 try {
-                    await addDoc(collection(db, "musique"), {
+                    const data = {
                         title, subtitle, badge,
                         spotifyId: spId,
                         coverUrl: coverUrl || '',
                         youtubeId: ytId || '',
                         createdAt: Date.now()
-                    });
+                    };
+                    if (albumId) {
+                        data.albumId       = albumId;
+                        data.albumTitle    = albumTitle || albumId;
+                        data.albumCoverUrl = albumCoverUrl || '';
+                        if (spAlbumId) data.spotifyAlbumId = spAlbumId;
+                    }
+                    await addDoc(collection(db, "musique"), data);
                     showToast('Son ajouté avec succès !');
                     e.target.reset();
                     spPreview.style.display = 'none';
@@ -882,6 +894,27 @@
                 <div class="form-group">
                     <label>Badge (optionnel)</label>
                     <input type="text" id="musique-badge" placeholder="Nouveau">
+                </div>
+                <!-- ── Champs Album (optionnel) ── -->
+                <div class="form-group full" style="margin-top:6px;">
+                    <label style="color:rgba(185,76,255,0.8);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;">Album (optionnel)</label>
+                    <hr style="border:none;border-top:1px solid rgba(185,76,255,0.15);margin:6px 0 10px;">
+                </div>
+                <div class="form-group">
+                    <label>ID Album <span style="font-size:0.68rem;opacity:0.5;">(ex: hfs, ballas_ep…)</span></label>
+                    <input type="text" id="musique-album-id" placeholder="slug unique de l'album">
+                </div>
+                <div class="form-group">
+                    <label>Nom de l'album</label>
+                    <input type="text" id="musique-album-title" placeholder="HFS, Vol. 1…">
+                </div>
+                <div class="form-group">
+                    <label>Cover de l'album (URL)</label>
+                    <input type="url" id="musique-album-cover" placeholder="https://... (cover de l'album)">
+                </div>
+                <div class="form-group">
+                    <label>URL Album Spotify (optionnel)</label>
+                    <input type="url" id="musique-album-spotify-url" placeholder="https://open.spotify.com/album/...">
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary" id="submit-musique-btn">+ Ajouter le son</button>
