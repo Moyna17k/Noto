@@ -1,7 +1,50 @@
 // ─── main.js ─────────────────────────────────────────────────────────────────
-// Navigation entre les pages + interactions UI
+// Navigation entre les pages + interactions UI + Intro Vidéo
 // Chargé avec <script defer src="main.js"> dans index.html
 // ─────────────────────────────────────────────────────────────────────────────
+
+// ── Écran d'intro vidéo ──────────────────────────────────────────────────────
+(function () {
+    const introOverlay = document.getElementById('intro-overlay');
+    const introVideo   = document.getElementById('intro-video');
+    const skipIntroBtn = document.getElementById('skip-intro-btn');
+    const soundBtn     = document.getElementById('intro-sound-btn');
+
+    if (!introOverlay) return;
+
+    function hideIntro() {
+        introOverlay.classList.add('hidden');
+        if (introVideo) introVideo.pause();
+        setTimeout(() => introOverlay.remove(), 600); // laisse le temps au fondu CSS
+    }
+
+    if (introVideo) {
+        // Masquer l'intro automatiquement à la fin de la vidéo
+        introVideo.addEventListener('ended', hideIntro);
+
+        // Tenter de lancer la vidéo AVEC le son
+        introVideo.play().catch(() => {
+            // Le navigateur bloque l'autoplay avec son → on retente en muet
+            introVideo.muted = true;
+            introVideo.play().catch(() => {
+                // Toujours bloqué (rare) : l'utilisateur pourra cliquer sur Passer
+            });
+            if (soundBtn) soundBtn.style.display = 'inline-flex';
+        });
+    }
+
+    if (soundBtn) {
+        soundBtn.addEventListener('click', () => {
+            introVideo.muted = false;
+            introVideo.play().catch(() => {});
+            soundBtn.style.display = 'none';
+        });
+    }
+
+    if (skipIntroBtn) {
+        skipIntroBtn.addEventListener('click', hideIntro);
+    }
+})();
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 const btns  = document.querySelectorAll('.noto-nav-btn');
